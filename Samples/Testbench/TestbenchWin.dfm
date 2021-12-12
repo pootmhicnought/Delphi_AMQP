@@ -2,8 +2,8 @@ object TestbenchForm: TTestbenchForm
   Left = 0
   Top = 0
   Caption = 'AMQP Testbench'
-  ClientHeight = 821
-  ClientWidth = 1218
+  ClientHeight = 592
+  ClientWidth = 1202
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,17 +11,18 @@ object TestbenchForm: TTestbenchForm
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
-    1218
-    821)
+    1202
+    592)
   PixelsPerInch = 96
   TextHeight = 13
   object MemoMessages: TMemo
     Left = 8
-    Top = 629
-    Width = 897
+    Top = 400
+    Width = 881
     Height = 184
     Anchors = [akLeft, akRight, akBottom]
     Color = clBlack
@@ -33,6 +34,8 @@ object TestbenchForm: TTestbenchForm
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 1
+    ExplicitTop = 629
+    ExplicitWidth = 897
   end
   object ButtonConnect: TButton
     Left = 8
@@ -47,7 +50,7 @@ object TestbenchForm: TTestbenchForm
     Left = 8
     Top = 160
     Width = 401
-    Height = 464
+    Height = 235
     Anchors = [akLeft, akTop, akBottom]
     Ctl3D = False
     Font.Charset = DEFAULT_CHARSET
@@ -59,12 +62,13 @@ object TestbenchForm: TTestbenchForm
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 2
+    ExplicitHeight = 464
   end
   object MemoReceived: TMemo
     Left = 617
     Top = 160
-    Width = 401
-    Height = 464
+    Width = 385
+    Height = 235
     Anchors = [akLeft, akTop, akRight, akBottom]
     Ctl3D = False
     Font.Charset = DEFAULT_CHARSET
@@ -76,12 +80,14 @@ object TestbenchForm: TTestbenchForm
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 3
+    ExplicitWidth = 401
+    ExplicitHeight = 464
   end
   object MemoSentBytes: TMemo
     Left = 415
     Top = 160
     Width = 196
-    Height = 463
+    Height = 234
     Anchors = [akLeft, akTop, akBottom]
     Color = clGreen
     Ctl3D = False
@@ -94,12 +100,13 @@ object TestbenchForm: TTestbenchForm
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 4
+    ExplicitHeight = 463
   end
   object MemoReceivedBytes: TMemo
-    Left = 1024
+    Left = 1008
     Top = 104
     Width = 186
-    Height = 520
+    Height = 291
     Anchors = [akTop, akRight, akBottom]
     Color = clGreen
     Ctl3D = False
@@ -112,6 +119,8 @@ object TestbenchForm: TTestbenchForm
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 5
+    ExplicitLeft = 1024
+    ExplicitHeight = 520
   end
   object ButtonDisconnect: TButton
     Left = 8
@@ -249,8 +258,8 @@ object TestbenchForm: TTestbenchForm
     OnClick = ButtonConsumeBlueClick
   end
   object Panel1: TPanel
-    Left = 911
-    Top = 630
+    Left = 895
+    Top = 401
     Width = 299
     Height = 183
     Anchors = [akRight, akBottom]
@@ -260,6 +269,8 @@ object TestbenchForm: TTestbenchForm
     ParentCtl3D = False
     ShowCaption = False
     TabOrder = 21
+    ExplicitLeft = 911
+    ExplicitTop = 630
     object LabelStatus: TLabel
       Left = 8
       Top = 8

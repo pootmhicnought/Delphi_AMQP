@@ -495,7 +495,6 @@ var
   Stream: TMemoryStream;
   BaseChannel: IAMQPBaseChannel;
 begin
-  Result := nil;
   Stream := TMemoryStream.Create;
   Method := TAMQPMethod.CreateMethod( AMQP_BASIC_GET );
   Try
@@ -629,7 +628,7 @@ end;
 function TAMQPChannel.HasCompleteMessageInQueue(AQueue: TObjectList<TAMQPFrame>): Boolean;
 var
   HeaderFrame: TAMQPFrame;
-  Size, Received: UInt64;
+  Size, Received: Int64;
   Index: Integer;
 begin
   Result := False;

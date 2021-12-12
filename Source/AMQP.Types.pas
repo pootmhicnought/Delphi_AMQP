@@ -361,16 +361,18 @@ var VType: Integer;
 begin
   VType:= tvardata(AValue).vtype;
   case VType of
-    varempty: Result := Self;
-    varnull:  Result := Self;
-    varint64: Result := Add(AName, tvardata(AValue).vint64);
+    varempty:    Result := Self;
+    varnull:     Result := Self;
+    varint64:    Result := Add(AName, tvardata(AValue).vint64);
     varinteger:  Result := Add(AName, tvardata(AValue).vinteger);
-    varword: Result := Add(AName, tvardata(AValue).vword);
-    varbyte: Result := Add(AName, tvardata(AValue).vbyte);
+    varword:     Result := Add(AName, tvardata(AValue).vword);
+    varbyte:     Result := Add(AName, tvardata(AValue).vbyte);
     varshortint: Result := Add(AName, tvardata(AValue).vshortint);
-    varstring, varustrarg:  Result := Add(AName, VarToStr(AValue));
-    vardouble:  Result := Add(AName, tvardata(AValue).vdouble);
+    varstring,
+    varustrarg:  Result := Add(AName, VarToStr(AValue));
+    vardouble:   Result := Add(AName, tvardata(AValue).vdouble);
     varboolean:  Result := Add(AName, tvardata(AValue).vboolean);
+    else Result := nil;
   end;
 end;
 
@@ -1149,12 +1151,10 @@ end;
 function TFieldArray.AsString(AIndent: string): String;
 var
   Value: TAMQPValue;
-  MaxLength: Integer;
 begin
-  MaxLength := 0;
   Result := 'Array:' + NewLine + AIndent + Tab+' { ' + NewLine;
-  for Value in FValue do
-    Result := Result + AIndent + Tab + Tab + Value.AsString(AIndent + Tab) + NewLine;
+  for Value in FValue
+  do Result := Result + AIndent + Tab + Tab + Value.AsString(AIndent + Tab) + NewLine;
   Result := Result + AIndent + Tab + ' } ';
 end;
 
@@ -1189,7 +1189,6 @@ var
 begin
   AStream.ReadUInt32(LSize);
   StartOfArray := AStream.Position;
-  Value := nil;
   while (AStream.Position - StartOfArray) < LSize do
   Begin
     AStream.Read(C, 1);
@@ -1232,9 +1231,7 @@ begin
       raise AMQPTypeException.Create('Unsupported field-value: ' + C);
     end;
     Value.LoadFromStream(AStream);
-
     FValue.Add(Value);
-
   End;
 end;
 

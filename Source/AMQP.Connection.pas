@@ -872,7 +872,6 @@ var
   Frame   : TAMQPFrame;
   Stream  : TMemoryStream;
 begin
-  Result := nil;
   Frame  := TAMQPFrame.Create;
   Stream := TMemoryStream.Create;
   Try
