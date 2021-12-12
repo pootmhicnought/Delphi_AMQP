@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{08B89F4A-51A1-413B-8DBF-5A5C03F9E91C}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Samples\Testbench\Testbench.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Samples\Threads\ThreadSample.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Testbench">
+        <MSBuild Projects="Samples\Testbench\Testbench.dproj"/>
+    </Target>
+    <Target Name="Testbench:Clean">
+        <MSBuild Projects="Samples\Testbench\Testbench.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Testbench:Make">
+        <MSBuild Projects="Samples\Testbench\Testbench.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ThreadSample">
+        <MSBuild Projects="Samples\Threads\ThreadSample.dproj"/>
+    </Target>
+    <Target Name="ThreadSample:Clean">
+        <MSBuild Projects="Samples\Threads\ThreadSample.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ThreadSample:Make">
+        <MSBuild Projects="Samples\Threads\ThreadSample.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Testbench;ThreadSample"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Testbench:Clean;ThreadSample:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Testbench:Make;ThreadSample:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
