@@ -123,19 +123,19 @@ begin
   Consumer1 := nil;
   Consumer2 := nil;
   AMQP := TAMQPConnection.Create;
+  AMQP.MaxChannel    := 4;
   AMQP.HeartbeatSecs := 60;
-  AMQP.Host          := '192.168.1.225';//'172.17.251.111';
-  AMQP.Port          := 5672;
-  AMQP.VirtualHost   := '/';//'vtc';
-  AMQP.Username      := 'admin';//'vtc_test';
-  AMQP.Password      := 'admin';//'vtc_test';
+  AMQP.Host          := 'broomcloset';
+  AMQP.Port          := 45672;
+  AMQP.VirtualHost   := '/';
+  AMQP.Username      := 'guest';
+  AMQP.Password      := 'guest';
   AMQP.Timeout := INFINITE;
   AMQP.Connect;
   Channel := AMQP.OpenChannel;
   Channel.ExchangeDeclare( 'Work', 'direct', [] );
   Channel.QueueDeclare( 'WorkQueue' , []);
   Channel.QueueBind( 'WorkQueue', 'Work', 'work.unit' , []);
-
 end;
 
 { TConsumerThread }
