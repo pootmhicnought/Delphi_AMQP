@@ -8,3 +8,5 @@ I tried a few forks, some better than others but none actually functional (many 
 So far this appears 100% functional under Delphi 10.4 with RabbitMQ 3.9.9 on top of Erlang/OTP 24.1.5
 
 I've only been testing the features I need at this point.
+
+Tested in FMX, working there as well.  Over the next few weeks I'll be using this project in Android/Win64 and Win32
