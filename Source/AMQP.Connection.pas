@@ -7,7 +7,12 @@ Uses
   {$IfDef FPC}
   SysUtils, Classes, Generics.Collections, Generics.Defaults, SyncObjs, fptimer,
   {$Else}
-  System.SysUtils, System.Classes, System.Generics.Collections, System.Generics.Defaults, System.SyncObjs, VCL.ExtCtrls,
+  System.SysUtils, System.Classes, System.Generics.Collections, System.Generics.Defaults, System.SyncObjs,
+  {$IFDEF FMX}
+  FMX.Types,
+  {$ELSE}
+  VCL.ExtCtrls,
+  {$ENDIF}
   {$EndIf}
   IdTcpClient,
   AMQP.Classes, AMQP.Frame, AMQP.Header, AMQP.Method, AMQP.Protocol, AMQP.Message, AMQP.Interfaces, AMQP.IMessageProperties;
