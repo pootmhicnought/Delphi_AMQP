@@ -1,0 +1,13 @@
+# this is just a start, eventually I'd like to implement automated tests.
+on:
+  push:
+    branches:
+    - main
+    - release/*
+
+jobs:
+  run_tests:
+    name: Run automated tests
+    runs-on: [self-hosted, Delphi]
+    steps:
+     - run: echo Hello World!
