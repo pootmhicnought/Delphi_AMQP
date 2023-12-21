@@ -9,6 +9,9 @@
         <Projects Include="Samples\Threads\ThreadSample.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Samples\Console\AMQP_Console_Test.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="ThreadSample:Make">
         <MSBuild Projects="Samples\Threads\ThreadSample.dproj" Targets="Make"/>
     </Target>
+    <Target Name="AMQP_Console_Test">
+        <MSBuild Projects="Samples\Console\AMQP_Console_Test.dproj"/>
+    </Target>
+    <Target Name="AMQP_Console_Test:Clean">
+        <MSBuild Projects="Samples\Console\AMQP_Console_Test.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="AMQP_Console_Test:Make">
+        <MSBuild Projects="Samples\Console\AMQP_Console_Test.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Testbench;ThreadSample"/>
+        <CallTarget Targets="Testbench;ThreadSample;AMQP_Console_Test"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Testbench:Clean;ThreadSample:Clean"/>
+        <CallTarget Targets="Testbench:Clean;ThreadSample:Clean;AMQP_Console_Test:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Testbench:Make;ThreadSample:Make"/>
+        <CallTarget Targets="Testbench:Make;ThreadSample:Make;AMQP_Console_Test:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
