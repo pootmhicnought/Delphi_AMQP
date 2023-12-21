@@ -15,6 +15,7 @@ Uses
   {$ENDIF}
   {$EndIf}
   IdTcpClient,
+  DateUtils,
   AMQP.Classes, AMQP.Frame, AMQP.Header, AMQP.Method, AMQP.Protocol, AMQP.Message, AMQP.Interfaces, AMQP.IMessageProperties;
 
 Type
@@ -54,6 +55,8 @@ Type
                         ADumpMethod: TDumpMethod; ADumpHeader: TDumpHeader; ADumpFrame: TDumpFrame );
   End;
 
+  THeartbeatThread = class;
+
   TAMQPConnection = Class(TSingletonImplementation, IAMQPConnection)
   Strict Private
     FTCP              : TIdTcpClient;
@@ -79,7 +82,7 @@ Type
     FOnDebug          : TDebugEvent;
     FIsOpen           : Boolean;
     FServerDisconnected: Boolean;
-    FHeartbeatTimer   : {$IfDef FPC}TFPTimer{$Else}TTimer{$EndIf};
+    FHeartbeatThread  : THeartbeatThread;
     FTimeout          : LongWord;
     // get / set methods
     function GetHost: String;
@@ -88,7 +91,6 @@ Type
     procedure SetPort(const Value: Word);
     function GetTimeOut: LongWord;
     //Heartbeat handling
-    procedure HeartbeatTimer( Sender: TObject );
     Procedure HeartbeatReceived;
     //Helpers
     function ThreadRunning: Boolean;
@@ -100,13 +102,6 @@ Type
     procedure CloseConnection;
     Procedure CloseChannelOnServer( AChannel: IAMQPChannel );
     procedure ServerDisconnect( AMessage: String );
-    //Read / write methods
-    function ReadFrame: IAMQPFrame;
-    function ReadMethod( AExpected: Array of TAMQPMethodID ): IAMQPFrame;
-    Procedure WriteFrame( AFrameType: Byte; AChannel: Word; APayload: TStream; ASize: Integer );
-    procedure WriteHeartbeat;
-    procedure WriteMethod( AChannel: Word; AMethod: TAMQPMethod );
-    procedure WriteContent( AChannel, AClassID: Word; AContent: TStream; AProperties: IAMQPMessageProperties );
     //Debug
     procedure DumpMethod( ASendRecv: TSendRecv; AMethod: TAMQPMethod );
     procedure DumpHeader( ASendRecv: TSendRecv; AHeader: TAMQPHeader );
@@ -115,6 +110,13 @@ Type
     procedure SetMaxFrameSize(const Value: Cardinal);
     procedure SetTimeout(const Value: LongWord);
     procedure SetMaxChannel(const Value: Integer);
+    //Read / write methods
+    function ReadFrame: IAMQPFrame;
+    function ReadMethod( AExpected: Array of TAMQPMethodID ): IAMQPFrame;
+    Procedure WriteFrame( AFrameType: Byte; AChannel: Word; APayload: TStream; ASize: Integer );
+    procedure WriteHeartbeat;
+    procedure WriteMethod( AChannel: Word; AMethod: TAMQPMethod );
+    procedure WriteContent( AChannel, AClassID: Word; AContent: TStream; AProperties: IAMQPMessageProperties );
   Public
     Property Username         : String      read FUsername      write FUsername;
     Property Password         : String      read FPassword      write FPassword;
@@ -146,6 +148,15 @@ Type
     Constructor Create;
     Destructor Destroy; Override;
   End;
+
+  THeartbeatThread = class(TThread)
+  private
+    FAMQPConnection: TAMQPConnection;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(AMQPConnection: TAMQPConnection); virtual;
+  end;
 
 function GetLocalComputerName : string;
 
@@ -312,10 +323,7 @@ begin
   FServerProperties.ReadConnectionOpenOK( Frame.Payload.AsMethod );
   FIsOpen := True;
   FServerDisconnected := False;
-  FHeartbeatTimer.Interval := FHeartbeatSecs * 1000;
-
-  FHeartbeatTimer.Enabled  := True;
-
+  FHeartbeatThread.Start;
 end;
 
 constructor TAMQPConnection.Create;
@@ -347,13 +355,7 @@ begin
   FMaxFrameSize     := 131072;
   FMaxChannel       := 1;
   FServerDisconnected := False;
-  FHeartbeatTimer   := {$IfDef FPC}TFPTimer{$Else}TTimer{$EndIf}.Create( nil );
-  FHeartbeatTimer.Enabled  := False;
-  FHeartbeatTimer.Interval := 60000;
-  FHeartbeatTimer.OnTimer  := HeartbeatTimer;
-  {$IfDef FPC}
-  FHeartbeatTimer.UseTimerThread:=True;
-  {$EndIf}
+  FHeartbeatThread := THeartbeatThread.Create(Self);
 end;
 
 function TAMQPConnection.DefaultMessageProperties: IAMQPMessageProperties;
@@ -374,7 +376,7 @@ begin
     FTCP.Free;
     FSendLock.Free;
     FDebugLock.Free;
-    FHeartbeatTimer.Free;
+    FHeartbeatThread.Free;
     inherited;
   End;
 end;
@@ -535,17 +537,9 @@ begin
   FLastHeartbeat := Now;
 end;
 
-procedure TAMQPConnection.HeartbeatTimer(Sender: TObject);
-begin
-  if IsOpen then
-    WriteHeartbeat
-  else
-     FHeartbeatTimer.Enabled := False;
-end;
-
 procedure TAMQPConnection.InternalDisconnect(ACloseConnection: Boolean);
 begin
-  FHeartbeatTimer.Enabled := False;
+  FHeartbeatThread.Terminate;
   Try
     CloseAllChannels;
     if ACloseConnection then
@@ -1001,6 +995,35 @@ begin
     SignalCloseToChannels;
     Method.Free;
   End;
+end;
+
+{ THeartbeatThread }
+
+constructor THeartbeatThread.Create(AMQPConnection: TAMQPConnection);
+begin
+  inherited Create(True);
+  FAMQPConnection := AMQPConnection;
+end;
+
+procedure THeartBeatThread.Execute;
+var
+  lStart: TDateTime;
+begin
+  while not Terminated do
+  begin
+    lStart := Now;
+    while (not Terminated) and (MilliSecondsBetween(Now, lStart) < (FAMQPConnection.HeartbeatSecs * 1000)) do
+    begin
+      Sleep(100);
+    end;
+    if not Terminated then
+    begin
+      if FAMQPConnection.IsOpen then
+        FAMQPConnection.WriteHeartbeat
+      else
+        Terminate;
+    end;
+  end;
 end;
 
 end.
