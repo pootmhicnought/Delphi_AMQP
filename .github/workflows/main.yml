@@ -1,26 +1,15 @@
 # this is just a start, eventually I'd like to implement automated tests.
 on:
-  push:
-    branches:
-    - main
-    - release/*
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch
+#  push:
+#    branches:
+#    - main
+#    - release/*
+#  pull_request:
+#    types: [opened, synchronize, reopened]
 jobs:
   run_tests:
     name: Run automated tests
     runs-on: [self-hosted, Delphi]
     steps:
      - run: echo Hello World!
-  sonarcloud:
-    name: SonarCloud
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
