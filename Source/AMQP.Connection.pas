@@ -91,6 +91,8 @@ Type
     procedure SetPort(const Value: Word);
     function GetTimeOut: LongWord;
     //Heartbeat handling
+    Procedure StartWriteHeartbeat;
+    Procedure CloseWriteHeartbeat;
     Procedure HeartbeatReceived;
     //Helpers
     function ThreadRunning: Boolean;
@@ -323,7 +325,7 @@ begin
   FServerProperties.ReadConnectionOpenOK( Frame.Payload.AsMethod );
   FIsOpen := True;
   FServerDisconnected := False;
-  FHeartbeatThread.Start;
+  StartWriteHeartbeat;
 end;
 
 constructor TAMQPConnection.Create;
@@ -355,7 +357,6 @@ begin
   FMaxFrameSize     := 131072;
   FMaxChannel       := 1;
   FServerDisconnected := False;
-  FHeartbeatThread := THeartbeatThread.Create(Self);
 end;
 
 function TAMQPConnection.DefaultMessageProperties: IAMQPMessageProperties;
@@ -376,7 +377,7 @@ begin
     FTCP.Free;
     FSendLock.Free;
     FDebugLock.Free;
-    FHeartbeatThread.Free;
+    CloseWriteHeartbeat;
     inherited;
   End;
 end;
@@ -425,6 +426,15 @@ begin
       Method.Free;
     End;
   End;
+end;
+
+procedure TAMQPConnection.CloseWriteHeartbeat;
+begin
+  if Assigned(FHeartbeatThread) then begin
+    FHeartbeatThread.Terminate;
+    FHeartbeatThread.WaitFor;
+    FreeAndNil(FHeartbeatThread);
+  end;
 end;
 
 procedure TAMQPConnection.Disconnect;
@@ -539,7 +549,7 @@ end;
 
 procedure TAMQPConnection.InternalDisconnect(ACloseConnection: Boolean);
 begin
-  FHeartbeatThread.Terminate;
+  CloseWriteHeartbeat;
   Try
     CloseAllChannels;
     if ACloseConnection then
@@ -585,6 +595,9 @@ var
 Begin
   Channels := FChannels.LockList;
   Try
+    if Channels.Count = FMaxChannel then
+      raise AMQPException.Create('Exceeded maximum channel number');
+
     Result := TAMQPChannel.Create( Self, GetNewChannelID( Channels ) );
     Channels.Add( Result );
   Finally
@@ -681,6 +694,14 @@ end;
 procedure TAMQPConnection.SetTimeout(const Value: LongWord);
 begin
  FTimeout := Value;
+end;
+
+procedure TAMQPConnection.StartWriteHeartbeat;
+begin
+  if not Assigned(FHeartbeatThread) then begin
+    FHeartbeatThread := THeartbeatThread.Create(Self);
+    FHeartbeatThread.Start;
+  end;
 end;
 
 function TAMQPConnection.ThreadRunning: Boolean;
